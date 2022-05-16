@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en-US">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+
+        <link rel="stylesheet" href="./tmp/figma-plugin-ds.css"> <!-- Figma Plugin DS Styles -->
+        <link rel="stylesheet" href="./tmp/styles.css"> <!-- Your Styles -->
+    </head>
+    <body>
+        <p class="type--bold type--small">Paste tabular data from spreadsheet:
+          <textarea class="textarea" id="data" rows="15" cols="50"></textarea>
+        </p>
+        
+        <p></p>
+        
+        <div>
+            <input type="checkbox" id="wrap_in_autolayout" name="wrap_in_autolayout" checked="checked">
+            <label for="wrap_in_autolayout" class="type--bold type--small"> Wrap in autolayout</label><br>
+        </div>
+
+        <input type="checkbox" id="right_align_numbers" name="right_align_numbers" checked="checked">
+        <label for="right_align_numbers" class="type--bold type--small"> Align numeric values to the right</label><br>
+
+        <div class="btn-group">
+            <button id="cancel" class='button button--secondary'>Cancel</button>
+            <button id="build" class='button button--primary'>Build Table</button> 
+        </div>
+
+        <script>
+            document.getElementById('build').onclick = () => {
+            parent.postMessage({ pluginMessage: { 
+                type: 'build-table', 
+                data: document.getElementById('data').value,
+                wrap_in_autolayout: document.getElementById('wrap_in_autolayout').checked,
+                right_align_numbers: document.getElementById('right_align_numbers').checked,
+            } }, '*')
+            }
+            
+            document.getElementById('cancel').onclick = () => {
+            parent.postMessage({ pluginMessage: { type: 'cancel' } }, '*')
+            }
+        </script>
+
+    <script src="./tmp/scripts.js"></script>
+    </body>
+</html>

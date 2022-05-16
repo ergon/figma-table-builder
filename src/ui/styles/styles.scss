@@ -1,0 +1,13 @@
+/* Add your own scripts */
+
+.btn-group {
+    display: flex;
+    justify-content: space-between; 
+    float: left; /* Float the buttons side by side */
+    width: 100%;
+    padding-top: 1rem;
+}
+
+body {
+    margin: 1rem;
+}
