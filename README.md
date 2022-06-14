@@ -1,8 +1,8 @@
 # Table Builder
 
-Fill custom tables in Figma with data from your spreadsheets. _Table Builder_ lets you paste tabular data and generates tables from a single component.
+_Table Builder_ lets you paste tabular data and generates tables from a single component.
 
-For each entry in the spread sheet, _Table Builder_ creates an instance of your original "cell" component, positions it in a grid and updates the cell's first child of type `text` with the data entry from the spreadsheet (Excel, Numbers, etc).
+For each entry in the spread sheet, _Table Builder_ creates an instance of your original cell component, positions it in a grid and updates the cell's first child of type `text` with the data entry from the spreadsheet (Excel, Numbers, etc).
 
 ## Usage
 
