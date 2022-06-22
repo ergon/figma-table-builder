@@ -21,6 +21,8 @@ Use `npm run dev` to start watcher task or `npm run build` to create a productio
 ## Possible improvements
 
 - Support table cell components having their text label **not** as a direct child
+- Error messages: Use UI with higher visibility than toast at the bottom of the screen
+- Auto-focus input field when plugin UI is opened (or/and add paste button)
 
 ## Credits
 
