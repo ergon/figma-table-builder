@@ -82,13 +82,24 @@ if (figma.currentPage.selection.length != 1) {
 		getFirstChildOfTypeText(newNode).characters = columns[j].trim(); 
   
 		if (right_align_numbers && !isNaN(Number(columns[j].replaceAll("'", "").trim()))) {
-		  getFirstChildOfTypeText(newNode).textAlignHorizontal = 'RIGHT'
+
+			// right-align text with fixed horizontal size
+			getFirstChildOfTypeText(newNode).textAlignHorizontal = 'RIGHT'
+
+			// right-align in autolayouts
+			if (newNode.layoutMode == 'HORIZONTAL') {
+				newNode.primaryAxisAlignItems = 'MAX'
+			} else if (newNode.layoutMode == 'VERTICAL') {
+				newNode.counterAxisAlignItems = 'MAX'
+			}
+
 		} else {
 		  getFirstChildOfTypeText(newNode).textAlignHorizontal = 'LEFT' // fails on "'" character
 		}
 		
 		if (wrapInAutoLayout) {
 		  columnAutoLayouts[j].appendChild(newNode)
+		  columnAutoLayouts[j].counterAxisSizingMode = 'AUTO'
 		} else {
 		  newNode.x = original.x + original.width * (j + 1)
 		  newNode.y = original.y + original.height * (i + 1)
@@ -99,6 +110,7 @@ if (figma.currentPage.selection.length != 1) {
 		}
 	  }
 	}
+	original.remove();
 	return headerCells;
   }
   
