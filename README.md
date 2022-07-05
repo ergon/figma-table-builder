@@ -4,6 +4,10 @@ _Table Builder_ lets you paste tabular data and generates tables from a single c
 
 For each entry in the spread sheet, _Table Builder_ creates an instance of your original cell component, positions it in a grid and updates the cell's first child of type `text` with the data entry from the spreadsheet (Excel, Numbers, etc).
 
+## Demo
+
+[https://www.youtube.com/watch?v=Y4QhE9EZ4pY]
+
 ## Usage
 
 1. Create a component that contains a text label (as a direct child)
