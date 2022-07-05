@@ -58,8 +58,8 @@ if (figma.currentPage.selection.length != 1) {
 	  var table = figma.createFrame()
 	  table.name = 'Table'
 	  table.layoutMode = 'HORIZONTAL'
-	  table.x = original.x + original.width
-	  table.y = original.y + original.height
+	  table.x = original.x
+	  table.y = original.y
 	  table.counterAxisSizingMode = 'AUTO' // hug contents vertically
 	  original.parent.appendChild(table) // add to same parent frame
 	}
