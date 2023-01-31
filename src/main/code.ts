@@ -20,23 +20,26 @@ if (figma.currentPage.selection.length != 1) {
 	if (msg.type === 'build-table') {
 	  
 	  var textNode = getFirstChildOfTypeText(figma.currentPage.selection[0])
-	  if (textNode === undefined) {
+	  if (textNode === undefined || textNode == null) {
 		figma.closePlugin("🛑 Selected node has to child of type TEXT");
+	  } else {
+		var fontName: FontName = textNode.fontName as FontName
+		Promise.all([
+		  figma.loadFontAsync({family: fontName['family'], style: fontName["style"]}),
+		]).then(() => { 
+			var headerCells = createTable(
+			  figma.currentPage.selection[0] as FrameNode, 
+			  msg.wrap_in_autolayout,
+			  msg.right_align_numbers,
+			  msg.data)
+			figma.currentPage.selection = headerCells;
+			figma.closePlugin();
+		  }
+		)
+
 	  }
   
-	  var fontName: FontName = textNode.fontName as FontName
-	  Promise.all([
-		figma.loadFontAsync({family: fontName['family'], style: fontName["style"]}),
-	  ]).then(() => { 
-		  var headerCells = createTable(
-			figma.currentPage.selection[0] as FrameNode, 
-			msg.wrap_in_autolayout,
-			msg.right_align_numbers,
-			msg.data)
-		  figma.currentPage.selection = headerCells;
-		  figma.closePlugin();
-		}
-	  )
+
 	  
 	} else {
 	  // user did cancel
@@ -116,7 +119,7 @@ if (figma.currentPage.selection.length != 1) {
   
   function getFirstChildOfTypeText(sceneNode: SceneNode) {
 	if ("children" in sceneNode) {
-	  return sceneNode.children.find(node => node.type === "TEXT") as TextNode
+	  return sceneNode.findOne(node => node.type === "TEXT") as TextNode
 	} else {
 	  return undefined
 	}
