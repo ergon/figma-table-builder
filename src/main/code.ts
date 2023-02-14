@@ -20,8 +20,8 @@ if (figma.currentPage.selection.length != 1) {
 	if (msg.type === 'build-table') {
 	  
 	  var textNode = getFirstChildOfTypeText(figma.currentPage.selection[0])
-	  if (textNode === undefined || textNode == null) {
-		figma.closePlugin("🛑 Selected node has to have a child of type TEXT");
+	  if (textNode == null) {
+		figma.closePlugin("🛑 Selected node must have a child of type TEXT");
 	  } else {
 		var fontName: FontName = textNode.fontName as FontName
 		Promise.all([
