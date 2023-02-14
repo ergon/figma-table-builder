@@ -121,7 +121,7 @@ if (figma.currentPage.selection.length != 1) {
 	if ("children" in sceneNode) {
 	  return sceneNode.findOne(node => node.type === "TEXT") as TextNode
 	} else {
-	  return undefined
+	  return null
 	}
   }
   
