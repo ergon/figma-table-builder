@@ -10,7 +10,7 @@ For each entry in the spread sheet, _Table Builder_ creates an instance of your 
 
 ## Usage
 
-1. Create a component that contains a text label (as a direct child)
+1. Create a component that contains a text label
 2. Select an **instance** of that component
 3. In the plugins menu, open **Table Builder**
 4. Copy tabular data from the spreadsheet and **paste** it into the text area of the plugin's UI
@@ -24,7 +24,6 @@ Use `npm run dev` to start watcher task or `npm run build` to create a productio
 
 ## Possible improvements
 
-- Support table cell components having their text label **not** as a direct child
 - Error messages: Use UI with higher visibility than toast at the bottom of the screen
 - Auto-focus input field when plugin UI is opened (or/and add paste button)
 
