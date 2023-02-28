@@ -81,6 +81,7 @@ if (figma.currentPage.selection.length != 1) {
 		}
 		
 		var newNode: FrameNode = original.clone()
+		newNode.primaryAxisSizingMode  = 'FIXED'
 		newNode.layoutAlign = 'STRETCH'
 		getFirstChildOfTypeText(newNode).characters = columns[j].trim(); 
   
