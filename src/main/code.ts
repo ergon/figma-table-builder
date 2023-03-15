@@ -64,6 +64,7 @@ if (figma.currentPage.selection.length != 1) {
 	  table.x = original.x
 	  table.y = original.y
 	  table.counterAxisSizingMode = 'AUTO' // hug contents vertically
+	  table.fills = []
 	  original.parent.appendChild(table) // add to same parent frame
 	}
   
@@ -74,6 +75,7 @@ if (figma.currentPage.selection.length != 1) {
 	  for (var j = 0; j < columns.length; j++) {
 		if (wrapInAutoLayout && i == 0) {
 		  var columnAutoLayout = figma.createFrame()
+		  columnAutoLayout.fills = []
 		  columnAutoLayout.layoutMode = 'VERTICAL'
 		  columnAutoLayouts.push(columnAutoLayout)
 		  columnAutoLayout.name = 'Column ' + j
@@ -125,4 +127,3 @@ if (figma.currentPage.selection.length != 1) {
 	  return null
 	}
   }
-  
