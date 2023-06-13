@@ -4,6 +4,10 @@ _Table Builder_ lets you paste tabular data and generates tables from a single c
 
 For each entry in the spread sheet, _Table Builder_ creates an instance of your original cell component, positions it in a grid and updates the cell's first child of type `text` with the data entry from the spreadsheet (Excel, Numbers, etc).
 
+## Privacy
+
+_Table Builder_ doesn't send your table data anywhere outside of Figma.
+
 ## Demo
 
 [https://www.youtube.com/watch?v=Y4QhE9EZ4pY]
@@ -24,8 +28,15 @@ Use `npm run dev` to start watcher task or `npm run build` to create a productio
 
 ## Possible improvements
 
-- Error messages: Use UI with higher visibility than toast at the bottom of the screen
-- Auto-focus input field when plugin UI is opened (or/and add paste button)
+- Enhancements
+  - Support data that contains apostrophe characters
+  - Support rows with alternating backgrounds (zebra)
+  - Right align title cell when all cells below are right-aligned
+  - Support Multi-line cells
+- Improvements
+  - Error messages: Use UI with higher visibility than toast at the bottom of the screen
+  - Auto-focus input field when plugin UI is opened (or/and add paste button)
+  - Use CVS library for parsing data (might make parsing more robust)
 
 ## Credits
 
