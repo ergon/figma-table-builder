@@ -1,6 +1,8 @@
 # Table Builder
 
-_Table Builder_ lets you paste tabular data and generates tables from a single component.
+✨ New: **Update** existing tables with new data
+
+_Table Builder_ lets you create and update tables by pasting tabular data from your spread sheets.
 
 For each entry in the spread sheet, _Table Builder_ creates an instance of your original cell component, positions it in a grid and updates the cell's first child of type `text` with the data entry from the spreadsheet (Excel, Numbers, etc).
 
@@ -14,11 +16,23 @@ _Table Builder_ doesn't send your table data anywhere outside of Figma.
 
 ## Usage
 
+### Create a new table
+
 1. Create a component that contains a text label
 2. Select an **instance** of that component
-3. In the plugins menu, open **Table Builder**
+3. In the plugins menu, select **Table Builder** and then **Create new Table**
 4. Copy tabular data from the spreadsheet and **paste** it into the text area of the plugin's UI
 5. Click on the **Build Table** button
+
+### Update an existing table
+
+1. Select a table that was created with Table Builder
+2. In the plugins menu, select **Table Builder** and then **Update existing Table**
+3. Copy tabular data from the spreadsheet and **paste** it into the text area of the plugin's UI
+4. Click on the **Build Table** button
+5. Select your table and reuse the plugin to update and resize it according to your given data
+OR select a column with the same row amount to update the table cells.
+If your table is an instance of a component, you can update it if it has the same row and column count.
 
 ## Development
 
@@ -37,6 +51,8 @@ Use `npm run dev` to start watcher task or `npm run build` to create a productio
   - Error messages: Use UI with higher visibility than toast at the bottom of the screen
   - Auto-focus input field when plugin UI is opened (or/and add paste button)
   - Use CVS library for parsing data (might make parsing more robust)
+  - Ignore hidden cells for updates
+  - Improve GUI so that the button is labeled 'Update table' when updating tables (maybe also change dialog title)
 
 ## Credits
 
