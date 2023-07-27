@@ -6,5 +6,9 @@
   "editorType": [
     "figma"
   ],
-  "ui": "index.html"
+  "ui": "index.html",
+  "menu": [
+    {"name": "Generate new Table", "command": "generate-table"},
+    {"name": "Update existing Table", "command": "update-table"}
+  ]
 }
