@@ -8,7 +8,7 @@
   ],
   "ui": "index.html",
   "menu": [
-    {"name": "Generate new Table", "command": "generate-table"},
-    {"name": "Update existing Table", "command": "update-table"}
+    {"name": "Generate new table", "command": "generate-table"},
+    {"name": "Update existing table", "command": "update-table"}
   ]
 }

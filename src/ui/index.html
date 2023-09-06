@@ -14,7 +14,7 @@
         
         <p></p>
         
-        <div>
+        <div id="wrap_in_autolayout_div">
             <input type="checkbox" id="wrap_in_autolayout" name="wrap_in_autolayout" checked="checked">
             <label for="wrap_in_autolayout" class="type--bold type--small"> Wrap in autolayout</label><br>
         </div>
@@ -24,13 +24,13 @@
 
         <div class="btn-group">
             <button id="cancel" class='button button--secondary'>Cancel</button>
-            <button id="build" class='button button--primary'>Build Table</button> 
+            <button id="run" class='button button--primary'>Generate table</button> 
         </div>
 
         <script>
-            document.getElementById('build').onclick = () => {
+            document.getElementById('run').onclick = () => {
             parent.postMessage({ pluginMessage: { 
-                type: 'build-table', 
+                type: 'run', 
                 data: document.getElementById('data').value,
                 wrap_in_autolayout: document.getElementById('wrap_in_autolayout').checked,
                 right_align_numbers: document.getElementById('right_align_numbers').checked,
@@ -39,6 +39,13 @@
             
             document.getElementById('cancel').onclick = () => {
             parent.postMessage({ pluginMessage: { type: 'cancel' } }, '*')
+            }
+        </script>
+
+        <script>
+            onmessage = (event) => {
+                document.getElementById('run').textContent = "Update table"
+                document.getElementById('wrap_in_autolayout_div').hidden = true
             }
         </script>
 

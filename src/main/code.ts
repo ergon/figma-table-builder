@@ -22,7 +22,7 @@ if (figma.command == "generate-table") {
 
 	figma.ui.onmessage = msg => {
 		console.log(msg);
-		if (msg.type === 'build-table') {
+		if (msg.type === 'run') {
 			var fontName: FontName = textNode.fontName as FontName
 			Promise.all([
 				figma.loadFontAsync({ family: fontName['family'], style: fontName["style"] }),
@@ -53,10 +53,11 @@ if (figma.command == "generate-table") {
 		// checks for alignment of autolayout frames. Allowed selected frames are: a single column or a table
 	} else {
 		figma.showUI(__html__, { width: 300, height: 366, title: "Table Builder" });
+		figma.ui.postMessage(null)
 	}
 
 	figma.ui.onmessage = msg => {
-		if (msg.type === 'build-table') {
+		if (msg.type === 'run') {
 			let fontNames = new Set<FontName>()
 			fontNames.add(textNode.fontName as FontName)
 
