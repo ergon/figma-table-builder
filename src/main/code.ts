@@ -139,12 +139,13 @@ function createTable(
 				var newNode: FrameNode = original.clone()
 				newNode.primaryAxisSizingMode = 'FIXED'
 				newNode.layoutAlign = 'STRETCH'
-				getFirstChildOfTypeText(newNode).characters = columns[j].trim();
+				var textNode = getFirstChildOfTypeText(newNode)
+				textNode.characters = columns[j].trim();
 
 				if (right_align_numbers && !isNaN(Number(columns[j].replaceAll("'", "").trim()))) {
 
 					// right-align text with fixed horizontal size
-					getFirstChildOfTypeText(newNode).textAlignHorizontal = 'RIGHT'
+					textNode.textAlignHorizontal = 'RIGHT'
 
 					// right-align in autolayouts
 					if (newNode.layoutMode == 'HORIZONTAL') {
@@ -154,10 +155,13 @@ function createTable(
 					}
 
 				} else {
-					getFirstChildOfTypeText(newNode).textAlignHorizontal = 'LEFT' // fails on "'" character
+					textNode.textAlignHorizontal = 'LEFT' // fails on "'" character
 				}
 
 				if (wrapInAutoLayout) {
+					textNode.layoutSizingVertical = 'FIXED'
+					textNode.layoutSizingHorizontal = 'FIXED'
+					textNode.layoutSizingHorizontal = 'HUG'
 					columnAutoLayouts[j].appendChild(newNode)
 					columnAutoLayouts[j].counterAxisSizingMode = 'AUTO'
 				} else {
@@ -177,10 +181,16 @@ function createTable(
 
 function getFirstChildOfTypeText(sceneNode: SceneNode) {
 	if ("children" in sceneNode) {
-		return sceneNode.findOne(node => node.type === "TEXT") as TextNode
-	} else {
-		return null
+		var textNodes = sceneNode.findAll(node => node.type === "TEXT")
+
+		for (var i = 0; i < textNodes.length; i++) {
+			if (textNodes[i].visible) {
+				return textNodes[i] as TextNode
+			}
+		}
 	}
+	return null
+
 }
 
 function tableCharacteristicsCheck(selectedFrame: FrameNode) {
@@ -295,7 +305,12 @@ function updateTable(selection: readonly SceneNode[], textNodes: TextNode[], dat
 	}
 
 	// Getting the numbers of columns of the selected table and comparing it to the data
-	var columnLength = selectedFrame.children.length
+	var columnLength = 0
+	for (var i = 0; i < selectedFrame.children.length; i++) {
+		if (selectedFrame.children[i].visible) {
+			columnLength++
+		}
+	}
 	if (columnLength != columnLengthData) {
 		if (resizable) {
 			addOrRemoveColumns(selectedFrame, columnLength, columnLengthData)
@@ -322,12 +337,12 @@ function updateTable(selection: readonly SceneNode[], textNodes: TextNode[], dat
 	}
 
 	// Comparing the row length of the selected table with the data
-	var rowLength = getTextNodes(selectedFrame, textNodes, columnLength)
+	var rowLength = getTextNodes(selectedFrame, textNodes)
 	if (rowLength != rowLengthData) {
 		if (resizable) {
 			addOrRemoveRows(selectedFrame, columnLength, rowLength, rowLengthData)
 			textNodes = []
-			rowLength = getTextNodes(selectedFrame, textNodes, columnLength)
+			rowLength = getTextNodes(selectedFrame, textNodes)
 		} else {
 			figma.closePlugin("🛑 Your given data has not the same row count as your selected table");
 			return
@@ -345,28 +360,40 @@ function updateTable(selection: readonly SceneNode[], textNodes: TextNode[], dat
  *
  * @param selectedFrame - The selected parent node as a Frame
  * @param textFrames - An empty array to fill all found text frames into
- * @param columnCount - The column count of the table (must be calculated before calling this method)
- * @returns Returns the maximal number of rows found in any column
+ * @returns Returns the number of rows found in any column
  */
-function getTextNodes(selectedFrame: FrameNode, textFrames: TextNode[], columnCount: number) {
-	var maxRowCount = 0
+function getTextNodes(selectedFrame: FrameNode, textFrames: TextNode[]) {
+	var rowCount = 0
 
 	if ("children" in selectedFrame) {
-		for (var i = 0; i < columnCount; i++) {
+		for (var i = 0; i < selectedFrame.children.length; i++) {
 			var column = selectedFrame.children[i] as FrameNode
-			var columnChildren = column.children
-			for (var j = 0; j < columnChildren.length; j++) {
-				if (maxRowCount < columnChildren.length) {
-					maxRowCount = columnChildren.length /* Getting the max row length */
+			if (column.visible) {
+				var localRowCount = 0
+				var columnChildren = column.children
+				
+				for (var j = 0; j < columnChildren.length; j++) {
+					if (columnChildren[i].visible){
+						localRowCount++
+					}
+					var textFrame = getFirstChildOfTypeText(columnChildren[j])
+					if (textFrame != null && textFrame.type == 'TEXT') {
+						textFrames.push(textFrame)
+					}
 				}
-				var textFrame = getFirstChildOfTypeText(columnChildren[j])
-				if (textFrame != null && textFrame.type == 'TEXT') {
-					textFrames.push(textFrame)
+				if (rowCount == 0) {
+					rowCount = localRowCount
+				} else if (rowCount != localRowCount) {
+					return -1
 				}
+				console.log("In Column" + i)
+				console.log("row =" + localRowCount)
+
 			}
+			
 		}
 	}
-	return maxRowCount
+	return rowCount
 }
 
 function addOrRemoveColumns(selectedFrame: FrameNode, columnLength: number, columnLengthData: number) {
