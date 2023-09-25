@@ -5,6 +5,8 @@
 // import Papa from "papaparse";
 // documentation: https://www.npmjs.com/package/papaparse
 
+figma.skipInvisibleInstanceChildren = true
+
 var selection = figma.currentPage.selection
 var textNode = getFirstChildOfTypeText(selection[0])
 
