@@ -128,12 +128,14 @@ function createTable(
 			var columns = line.split("\t")
 			for (var j = 0; j < columns.length; j++) {
 				if (wrapInAutoLayout && i == 0) {
+					table.minWidth = original.width * columns.length
 					var columnAutoLayout = figma.createFrame()
 					columnAutoLayout.fills = []
 					columnAutoLayout.layoutMode = 'VERTICAL'
 					columnAutoLayouts.push(columnAutoLayout)
 					columnAutoLayout.name = 'Column ' + j
 					table.appendChild(columnAutoLayout)
+					columnAutoLayout.layoutSizingHorizontal = 'FILL'
 				}
 
 				var newNode: FrameNode = original.clone()
