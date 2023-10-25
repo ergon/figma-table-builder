@@ -63,22 +63,12 @@ if (figma.command == "generate-table") {
 			let fontNames = new Set<FontName>()
 			fontNames.add(textNode.fontName as FontName)
 
-			// Gather all selected TextNodes
-			let textNodes: TextNode[] = []
-			for (const element of selection) {
-				let frameNode = element as FrameNode
-				let textNodeList = frameNode.findAll(n => (n.type == "TEXT"))
-				for (const element of textNodeList) {
-					textNodes.push(element as TextNode)
-				}
-			}
-
-			// Gather all fonts from the TextNodes
-			for (const element of textNodes) {
-				if (!fontNames.has(element.fontName as FontName)) {
-					fontNames.add(element.fontName as FontName)
-				}
-			}
+			// Gather fonts for all selected TextNodes
+			selection
+				.map(n => (n as FrameNode))
+				.flatMap(n => (n.findAll(nn => (nn.type == "TEXT"))))
+				.map(n => n as TextNode)
+				.forEach(n => (fontNames.add(n.fontName as FontName)))
 
 			// Get allowance to use fonts
 			const loadFonts = async () => {
@@ -183,12 +173,10 @@ function createTable(
 
 function getFirstChildOfTypeText(sceneNode: SceneNode) {
 	if ("children" in sceneNode) {
-
 		let textNodes = sceneNode.findAll(node => node.type === "TEXT")
 		return textNodes[0] as TextNode
 	}
 	return null
-
 }
 
 function tableCharacteristicsCheck(selectedFrame: FrameNode) {
