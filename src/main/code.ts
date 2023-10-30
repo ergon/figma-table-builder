@@ -5,8 +5,10 @@
 // import Papa from "papaparse";
 // documentation: https://www.npmjs.com/package/papaparse
 
-var selection = figma.currentPage.selection
-var textNode = getFirstChildOfTypeText(selection[0])
+figma.skipInvisibleInstanceChildren = true
+
+let selection = figma.currentPage.selection
+let textNode = getFirstChildOfTypeText(selection[0])
 
 if (figma.command == "generate-table") {
 	if (selection.length != 1) {
@@ -23,11 +25,11 @@ if (figma.command == "generate-table") {
 	figma.ui.onmessage = msg => {
 		console.log(msg);
 		if (msg.type === 'run') {
-			var fontName: FontName = textNode.fontName as FontName
+			let fontName: FontName = textNode.fontName as FontName
 			Promise.all([
 				figma.loadFontAsync({ family: fontName['family'], style: fontName["style"] }),
 			]).then(() => {
-				var headerCells = createTable(
+				let headerCells = createTable(
 					selection[0] as FrameNode,
 					msg.wrap_in_autolayout,
 					msg.right_align_numbers,
@@ -42,7 +44,7 @@ if (figma.command == "generate-table") {
 	};
 
 } else if (figma.command == "update-table") {
-	var checksArray = tableCharacteristicsCheck(selection[0] as FrameNode)
+	let checksArray = tableCharacteristicsCheck(selection[0] as FrameNode)
 
 	if (selection.length != 1) {
 		figma.closePlugin("🛑 A single node must be selected");
@@ -61,22 +63,12 @@ if (figma.command == "generate-table") {
 			let fontNames = new Set<FontName>()
 			fontNames.add(textNode.fontName as FontName)
 
-			// Gather all selected TextNodes
-			var textNodes: TextNode[] = []
-			for (var i = 0; i < selection.length; i++) {
-				var frameNode = selection[i] as FrameNode
-				var textNodeList = frameNode.findAll(n => (n.type == "TEXT"))
-				for (var j = 0; j < textNodeList.length; j++) {
-					textNodes.push(textNodeList[j] as TextNode)
-				}
-			}
-
-			// Gather all fonts from the TextNodes
-			for (var i = 0; i < textNodes.length; i++) {
-				if (!fontNames.has(textNodes[i].fontName as FontName)) {
-					fontNames.add(textNodes[i].fontName as FontName)
-				}
-			}
+			// Gather fonts for all selected TextNodes
+			selection
+				.map(n => (n as FrameNode))
+				.flatMap(n => (n.findAll(nn => (nn.type == "TEXT"))))
+				.map(n => n as TextNode)
+				.forEach(n => (fontNames.add(n.fontName as FontName)))
 
 			// Get allowance to use fonts
 			const loadFonts = async () => {
@@ -87,7 +79,7 @@ if (figma.command == "generate-table") {
 
 			// Start to update table
 			loadFonts().then(() => {
-				updateTable(selection, textNodes, msg.data, msg.right_align_numbers, checksArray[1])
+				updateTable(selection, msg.data, msg.right_align_numbers, checksArray[1])
 				figma.closePlugin();
 			})
 
@@ -101,11 +93,11 @@ function createTable(
 	original: FrameNode,
 	wrapInAutoLayout: boolean,
 	right_align_numbers: boolean,
-	data: String,
+	data: string,
 ) {
-	var columnAutoLayouts: FrameNode[];
+	let columnAutoLayouts: FrameNode[];
 	columnAutoLayouts = []
-	var headerCells: FrameNode[] = [];
+	let headerCells: FrameNode[] = [];
 
 	if (figma.currentPage.selection[0].type !== 'INSTANCE') {
 		figma.closePlugin("🛑 Selected node must be an instance of a component");
@@ -122,13 +114,13 @@ function createTable(
 			original.parent.appendChild(table) // add to same parent frame
 		}
 
-		var lines = data.split("\n")
-		for (var i = 0; i < lines.length; i++) {
-			var line = lines[i];
-			var columns = line.split("\t")
-			for (var j = 0; j < columns.length; j++) {
+		let lines = data.split("\n")
+		for (let i = 0; i < lines.length; i++) {
+			let line = lines[i];
+			let columns = line.split("\t")
+			for (let j = 0; j < columns.length; j++) {
 				if (wrapInAutoLayout && i == 0) {
-					var columnAutoLayout = figma.createFrame()
+					let columnAutoLayout = figma.createFrame()
 					columnAutoLayout.fills = []
 					columnAutoLayout.layoutMode = 'VERTICAL'
 					columnAutoLayouts.push(columnAutoLayout)
@@ -136,15 +128,16 @@ function createTable(
 					table.appendChild(columnAutoLayout)
 				}
 
-				var newNode: FrameNode = original.clone()
+				let newNode: FrameNode = original.clone()
 				newNode.primaryAxisSizingMode = 'FIXED'
 				newNode.layoutAlign = 'STRETCH'
-				getFirstChildOfTypeText(newNode).characters = columns[j].trim();
+				let textNode = getFirstChildOfTypeText(newNode)
+				textNode.characters = columns[j].trim();
 
 				if (right_align_numbers && !isNaN(Number(columns[j].replaceAll("'", "").trim()))) {
 
 					// right-align text with fixed horizontal size
-					getFirstChildOfTypeText(newNode).textAlignHorizontal = 'RIGHT'
+					textNode.textAlignHorizontal = 'RIGHT'
 
 					// right-align in autolayouts
 					if (newNode.layoutMode == 'HORIZONTAL') {
@@ -154,10 +147,13 @@ function createTable(
 					}
 
 				} else {
-					getFirstChildOfTypeText(newNode).textAlignHorizontal = 'LEFT' // fails on "'" character
+					textNode.textAlignHorizontal = 'LEFT' // fails on "'" character
 				}
 
 				if (wrapInAutoLayout) {
+					textNode.layoutSizingVertical = 'FIXED'
+					textNode.layoutSizingHorizontal = 'FIXED'
+					textNode.layoutSizingHorizontal = 'HUG'
 					columnAutoLayouts[j].appendChild(newNode)
 					columnAutoLayouts[j].counterAxisSizingMode = 'AUTO'
 				} else {
@@ -177,15 +173,15 @@ function createTable(
 
 function getFirstChildOfTypeText(sceneNode: SceneNode) {
 	if ("children" in sceneNode) {
-		return sceneNode.findOne(node => node.type === "TEXT") as TextNode
-	} else {
-		return null
+		let textNodes = sceneNode.findAll(node => node.type === "TEXT")
+		return textNodes[0] as TextNode
 	}
+	return null
 }
 
 function tableCharacteristicsCheck(selectedFrame: FrameNode) {
 	// First element is to check for a table like structure. Second element to checks if a column is selected.
-	var checksArray: boolean[] = [true, true]
+	let checksArray: boolean[] = [true, true]
 
 	// Check for columns == frames inside selected frame
 	if (!("children" in selectedFrame)) {
@@ -199,7 +195,7 @@ function tableCharacteristicsCheck(selectedFrame: FrameNode) {
 	}
 
 	// Check for column selection: look for instances inside selected frame
-	for (var i = 0; i < selectedFrame.children.length; i++) {
+	for (let i = 0; i < selectedFrame.children.length; i++) {
 		if (selectedFrame.children[i].type != "INSTANCE") {
 			checksArray[1] = false
 			i = selectedFrame.children.length
@@ -213,9 +209,9 @@ function tableCharacteristicsCheck(selectedFrame: FrameNode) {
 		}
 
 		// Check for cells inside columns == frames inside frames inside the selected frame
-		for (var i = 0; i < selectedFrame.children.length; i++) {
-			var child = selectedFrame.children[i] as FrameNode
-			if (!("children" in selectedFrame.children[i])) {
+		for (const element of selectedFrame.children) {
+			let child = element as FrameNode
+			if (!("children" in element)) {
 				figma.closePlugin("🛑 There is a column with no cells");
 				return checksArray
 			} else if (child.layoutMode != "VERTICAL") {
@@ -229,46 +225,46 @@ function tableCharacteristicsCheck(selectedFrame: FrameNode) {
 	return checksArray
 }
 
-function updateTable(selection: readonly SceneNode[], textNodes: TextNode[], data: String, right_align_numbers: boolean, isColumn: boolean) {
-	textNodes = []
+function updateTable(selection: readonly SceneNode[], data: string, right_align_numbers: boolean, isColumn: boolean) {
+	let textNodes = [] as TextNode[]
 	// Calculating row and column count of given data
-	var lines = data.split("\n")
-	var rowLengthData = lines.length
-	var columnLengthData = lines[0].split("\t").length
-	for (var i = 0; i < rowLengthData; i++) {
+	let lines = data.split("\n")
+	let rowLengthData = lines.length
+	let columnLengthData = lines[0].split("\t").length
+	for (let i = 0; i < rowLengthData; i++) {
 		if (columnLengthData < lines[i].split("\t").length) {
 			columnLengthData = lines[i].split("\t").length
 		}
 	}
 
 	// Create data table
-	var dataTable: String[][] = [];
-	for (var i = 0; i < rowLengthData; i++) {
+	let dataTable: string[][] = [];
+	for (let i = 0; i < rowLengthData; i++) {
 		dataTable[i] = []
-		var line = lines[i];
+		let line = lines[i];
 		var columnsData = line.split("\t")
-		for (var j = 0; j < columnsData.length; j++) {
+		for (let j = 0; j < columnsData.length; j++) {
 			dataTable[i][j] = columnsData[j]
 		}
 	}
 
 	// Inverse data table
-	var cellsData: String[] = [];
-	for (var i = 0; i < columnsData.length; i++) {
-		for (var j = 0; j < rowLengthData; j++) {
+	let cellsData: string[] = [];
+	for (let i = 0; i < columnsData.length; i++) {
+		for (let j = 0; j < rowLengthData; j++) {
 			cellsData.push(dataTable[j][i])
 		}
 	}
 
-	var resizable = true
-	var selectedFrame = selection[0] as FrameNode
+	let resizable = true
+	let selectedFrame = selection[0] as FrameNode
 
 	if (isColumn || selection[0].type == "INSTANCE") {
 		resizable = false
 	}
 
 	// Check for columns that are instances
-	for (var i = 0; i < selectedFrame.children.length; i++) {
+	for (let i = 0; i < selectedFrame.children.length; i++) {
 		if (selectedFrame.children[i].type == "INSTANCE") {
 			resizable = false
 			i = selectedFrame.children.length
@@ -277,10 +273,10 @@ function updateTable(selection: readonly SceneNode[], textNodes: TextNode[], dat
 
 	if (resizable) {
 		// All cells inside the columns need to be instances
-		for (var i = 0; i < selectedFrame.children.length; i++) {
-			var column = selectedFrame.children[i] as FrameNode
+		for (let i = 0; i < selectedFrame.children.length; i++) {
+			let column = selectedFrame.children[i] as FrameNode
 			if ("children" in column) {
-				for (var j = 0; j < column.children.length; j++) {
+				for (let j = 0; j < column.children.length; j++) {
 					if (column.children[i].type != "INSTANCE") {
 						resizable = false
 						j = column.children.length
@@ -295,15 +291,20 @@ function updateTable(selection: readonly SceneNode[], textNodes: TextNode[], dat
 	}
 
 	// Getting the numbers of columns of the selected table and comparing it to the data
-	var columnLength = selectedFrame.children.length
+	let columnLength = 0
+	for (const element of selectedFrame.children) {
+		if (element.visible) {
+			columnLength++
+		}
+	}
 	if (columnLength != columnLengthData) {
 		if (resizable) {
 			addOrRemoveColumns(selectedFrame, columnLength, columnLengthData)
 			columnLength = columnLengthData
 		} else if (isColumn) {
 			// Column selected
-			for (var i = 0; i < selectedFrame.children.length; i++) {
-				var textNode = getFirstChildOfTypeText(selectedFrame.children[i] as SceneNode)
+			for (const element of selectedFrame.children) {
+				let textNode = getFirstChildOfTypeText(element)
 				if (textNode != null) {
 					textNodes.push(textNode)
 				}
@@ -322,12 +323,12 @@ function updateTable(selection: readonly SceneNode[], textNodes: TextNode[], dat
 	}
 
 	// Comparing the row length of the selected table with the data
-	var rowLength = getTextNodes(selectedFrame, textNodes, columnLength)
+	let rowLength = getTextNodes(selectedFrame, textNodes)
 	if (rowLength != rowLengthData) {
 		if (resizable) {
 			addOrRemoveRows(selectedFrame, columnLength, rowLength, rowLengthData)
 			textNodes = []
-			rowLength = getTextNodes(selectedFrame, textNodes, columnLength)
+			getTextNodes(selectedFrame, textNodes)
 		} else {
 			figma.closePlugin("🛑 Your given data has not the same row count as your selected table");
 			return
@@ -341,46 +342,54 @@ function updateTable(selection: readonly SceneNode[], textNodes: TextNode[], dat
 /**
  * This function determines the  row count of the table looking into the cell amount of each column.
  * At the same time it adds all text frames that it finds on the way into the given array "textFrames".
- * It only works after knowing the column count because cells are inside columns which are inside the table.
- *
- * @param selectedFrame - The selected parent node as a Frame
+ * @param selectedFrame - The selected parent node as a frame
  * @param textFrames - An empty array to fill all found text frames into
- * @param columnCount - The column count of the table (must be calculated before calling this method)
- * @returns Returns the maximal number of rows found in any column
+ * @returns Returns the number of rows found in any column or an error of -1
  */
-function getTextNodes(selectedFrame: FrameNode, textFrames: TextNode[], columnCount: number) {
-	var maxRowCount = 0
+function getTextNodes(selectedFrame: FrameNode, textFrames: TextNode[]) {
+	let rowCount = 0
 
 	if ("children" in selectedFrame) {
-		for (var i = 0; i < columnCount; i++) {
-			var column = selectedFrame.children[i] as FrameNode
-			var columnChildren = column.children
-			for (var j = 0; j < columnChildren.length; j++) {
-				if (maxRowCount < columnChildren.length) {
-					maxRowCount = columnChildren.length /* Getting the max row length */
+		for (let i = 0; i < selectedFrame.children.length; i++) {
+			let column = selectedFrame.children[i] as FrameNode
+			if (column.visible) {
+				let localRowCount = 0
+				let columnChildren = column.children
+				
+				for (const element of columnChildren) {
+					if (columnChildren[i].visible){
+						localRowCount++
+					}
+					let textFrame = getFirstChildOfTypeText(element)
+					if (textFrame != null && textFrame.type == 'TEXT') {
+						textFrames.push(textFrame)
+					}
 				}
-				var textFrame = getFirstChildOfTypeText(columnChildren[j])
-				if (textFrame != null && textFrame.type == 'TEXT') {
-					textFrames.push(textFrame)
+				if (rowCount == 0) {
+					rowCount = localRowCount
+				} else if (rowCount != localRowCount) {
+					return -1
 				}
+
 			}
+			
 		}
 	}
-	return maxRowCount
+	return rowCount
 }
 
 function addOrRemoveColumns(selectedFrame: FrameNode, columnLength: number, columnLengthData: number) {
 	if ("children" in selectedFrame) {
 		if (columnLength > columnLengthData) {
 			// delete columns
-			for (var i = columnLengthData; i < columnLength; i++) {
+			for (let i = columnLengthData; i < columnLength; i++) {
 				selectedFrame.children[columnLengthData].remove()
 			}
 
 		} else if (columnLength < columnLengthData) {
 			// add columns
-			for (var i = columnLength; i < columnLengthData; i++) {
-				var copy = selectedFrame.children[columnLength - 1].clone()
+			for (let i = columnLength; i < columnLengthData; i++) {
+				let copy = selectedFrame.children[columnLength - 1].clone()
 				selectedFrame.appendChild(copy)
 			}
 		}
@@ -391,19 +400,19 @@ function addOrRemoveRows(selectedFrame: FrameNode, columnLength: number, rowLeng
 	if ("children" in selectedFrame) {
 		if (rowLength > rowLengthData) {
 			// delete rows
-			for (var i = 0; i < columnLength; i++) {
-				var column = selectedFrame.children[i] as FrameNode
-				for (var j = rowLengthData; j < rowLength; j++) {
+			for (let i = 0; i < columnLength; i++) {
+				let column = selectedFrame.children[i] as FrameNode
+				for (let j = rowLengthData; j < rowLength; j++) {
 					column.children[rowLengthData].remove()
 				}
 			}
 
 		} else if (rowLength < rowLengthData) {
 			// add rows
-			for (var i = 0; i < columnLength; i++) {
-				var column = selectedFrame.children[i] as FrameNode
-				for (var j = rowLength; j < rowLengthData; j++) {
-					var copy = column.children[rowLength - 1].clone()
+			for (let i = 0; i < columnLength; i++) {
+				let column = selectedFrame.children[i] as FrameNode
+				for (let j = rowLength; j < rowLengthData; j++) {
+					let copy = column.children[rowLength - 1].clone()
 					column.appendChild(copy)
 				}
 			}
@@ -412,18 +421,18 @@ function addOrRemoveRows(selectedFrame: FrameNode, columnLength: number, rowLeng
 	}
 }
 
-function insertData(textNodes: TextNode[], cellsData: String[], right_align_numbers: boolean) {
+function insertData(textNodes: TextNode[], cellsData: string[], right_align_numbers: boolean) {
 	// Copy text from data cell into table
-	var arrayLength = Math.min(textNodes.length, cellsData.length)
-	for (var i = 0; i < arrayLength; i++) {
-		var textNode = textNodes[i]
+	let arrayLength = Math.min(textNodes.length, cellsData.length)
+	for (let i = 0; i < arrayLength; i++) {
+		let textNode = textNodes[i]
 		textNode.characters = cellsData[i].trim()
 		updateAlignment(textNode, right_align_numbers)
 	}
 }
 
 function updateAlignment(textNode: TextNode, right_align_numbers: boolean) {
-	var FrameNode = textNode.parent as FrameNode
+	let FrameNode = textNode.parent as FrameNode
 	// Align as asked
 	if (right_align_numbers) {
 		if (!isNaN(Number(textNode.characters.replaceAll("'", "").trim()))) {
