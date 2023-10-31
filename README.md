@@ -12,7 +12,8 @@ _Table Builder_ doesn't send your table data anywhere outside of Figma.
 
 ## Demo
 
-[https://www.youtube.com/watch?v=Y4QhE9EZ4pY]
+* [https://www.youtube.com/watch?v=Y4QhE9EZ4pY](Video – Generate new table)
+* [https://youtu.be/xEiioTtt18I](Video – Update existing table)
 
 ## Usage
 
