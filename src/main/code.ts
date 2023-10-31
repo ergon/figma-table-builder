@@ -31,6 +31,7 @@ if (figma.command == "generate-table") {
 					selection[0] as FrameNode,
 					msg.wrap_in_autolayout,
 					msg.right_align_numbers,
+					msg.set_column_fill,
 					msg.data)
 				figma.currentPage.selection = headerCells;
 				figma.closePlugin();
@@ -101,6 +102,7 @@ function createTable(
 	original: FrameNode,
 	wrapInAutoLayout: boolean,
 	right_align_numbers: boolean,
+	setColumnFill: boolean,
 	data: String,
 ) {
 	var columnAutoLayouts: FrameNode[];
@@ -128,14 +130,16 @@ function createTable(
 			var columns = line.split("\t")
 			for (var j = 0; j < columns.length; j++) {
 				if (wrapInAutoLayout && i == 0) {
-					table.minWidth = original.width * columns.length
 					var columnAutoLayout = figma.createFrame()
 					columnAutoLayout.fills = []
 					columnAutoLayout.layoutMode = 'VERTICAL'
 					columnAutoLayouts.push(columnAutoLayout)
 					columnAutoLayout.name = 'Column ' + j
 					table.appendChild(columnAutoLayout)
-					columnAutoLayout.layoutSizingHorizontal = 'FILL'
+					if (setColumnFill) {
+						table.minWidth = original.width * columns.length
+						columnAutoLayout.layoutSizingHorizontal = 'FILL'
+					}
 				}
 
 				var newNode: FrameNode = original.clone()

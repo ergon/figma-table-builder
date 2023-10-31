@@ -22,6 +22,11 @@
         <input type="checkbox" id="right_align_numbers" name="right_align_numbers" checked="checked">
         <label for="right_align_numbers" class="type--bold type--small"> Align numeric values to the right</label><br>
 
+        <div id="set_column_fill_div">
+            <input type="checkbox" id="set_column_fill" name="set_column_fill">
+            <label for="set_column_fill" class="type--bold type--small"> Set column resizing to fill</label><br>
+        </div>
+
         <div class="btn-group">
             <button id="cancel" class='button button--secondary'>Cancel</button>
             <button id="run" class='button button--primary'>Generate table</button> 
@@ -34,6 +39,7 @@
                 data: document.getElementById('data').value,
                 wrap_in_autolayout: document.getElementById('wrap_in_autolayout').checked,
                 right_align_numbers: document.getElementById('right_align_numbers').checked,
+                set_column_fill: document.getElementById('set_column_fill').checked,
             } }, '*')
             }
             
@@ -46,6 +52,7 @@
             onmessage = (event) => {
                 document.getElementById('run').textContent = "Update table"
                 document.getElementById('wrap_in_autolayout_div').hidden = true
+                document.getElementById('set_column_fill_div').hidden = true
             }
         </script>
 
