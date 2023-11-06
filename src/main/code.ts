@@ -19,7 +19,7 @@ if (figma.command == "generate-table") {
 		figma.closePlugin("🛑 Selected node must be an instance of a component");
 	} else {
 		// This shows the HTML page in "ui.html".
-		figma.showUI(__html__, { width: 300, height: 366, title: "Table Builder" });
+		figma.showUI(__html__, { width: 300, height: 400, title: "Table Builder" });
 	}
 
 	figma.ui.onmessage = msg => {
@@ -33,6 +33,7 @@ if (figma.command == "generate-table") {
 					selection[0] as FrameNode,
 					msg.wrap_in_autolayout,
 					msg.right_align_numbers,
+					msg.set_column_fill,
 					msg.data)
 				figma.currentPage.selection = headerCells;
 				figma.closePlugin();
@@ -93,6 +94,7 @@ function createTable(
 	original: FrameNode,
 	wrapInAutoLayout: boolean,
 	right_align_numbers: boolean,
+	setColumnFill: boolean,
 	data: string,
 ) {
 	let columnAutoLayouts: FrameNode[];
@@ -126,6 +128,10 @@ function createTable(
 					columnAutoLayouts.push(columnAutoLayout)
 					columnAutoLayout.name = 'Column ' + j
 					table.appendChild(columnAutoLayout)
+					if (setColumnFill) {
+						table.minWidth = original.width * columns.length
+						columnAutoLayout.layoutSizingHorizontal = 'FILL'
+					}
 				}
 
 				let newNode: FrameNode = original.clone()
@@ -151,9 +157,6 @@ function createTable(
 				}
 
 				if (wrapInAutoLayout) {
-					textNode.layoutSizingVertical = 'FIXED'
-					textNode.layoutSizingHorizontal = 'FIXED'
-					textNode.layoutSizingHorizontal = 'HUG'
 					columnAutoLayouts[j].appendChild(newNode)
 					columnAutoLayouts[j].counterAxisSizingMode = 'AUTO'
 				} else {
