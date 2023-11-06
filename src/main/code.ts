@@ -19,7 +19,7 @@ if (figma.command == "generate-table") {
 		figma.closePlugin("🛑 Selected node must be an instance of a component");
 	} else {
 		// This shows the HTML page in "ui.html".
-		figma.showUI(__html__, { width: 300, height: 366, title: "Table Builder" });
+		figma.showUI(__html__, { width: 300, height: 400, title: "Table Builder" });
 	}
 
 	figma.ui.onmessage = msg => {
@@ -157,9 +157,6 @@ function createTable(
 				}
 
 				if (wrapInAutoLayout) {
-					textNode.layoutSizingVertical = 'FIXED'
-					textNode.layoutSizingHorizontal = 'FIXED'
-					textNode.layoutSizingHorizontal = 'HUG'
 					columnAutoLayouts[j].appendChild(newNode)
 					columnAutoLayouts[j].counterAxisSizingMode = 'AUTO'
 				} else {
