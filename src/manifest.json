@@ -10,5 +10,8 @@
   "menu": [
     {"name": "Generate new table", "command": "generate-table"},
     {"name": "Update existing table", "command": "update-table"}
-  ]
+  ],
+  "networkAccess": { 
+    "allowedDomains": ["none"] 
+  }
 }
