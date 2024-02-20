@@ -5,7 +5,8 @@
   "main": "gulpfile.js",
   "scripts": {
     "build": "gulp --production",
-    "dev": "gulp"
+    "dev": "gulp",
+    "postinstall": "touch ./.metadata_never_index"
   },
   "repository": {
     "type": "git",
