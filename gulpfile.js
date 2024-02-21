@@ -1,27 +1,29 @@
 // Initialize gulp + modules
-const { src, dest, watch, series, parallel } = require('gulp');
+import pkg from 'gulp';
+const { src, dest, watch, series, parallel } = pkg;
 
 // gulp plugins
-// const sass = require('gulp-sass'); //import SCSS compiler
-const sass = require('gulp-sass')(require('node-sass'));
-const concat = require('gulp-concat'); //enables gulp to concatenate multiple JS files into one
-const minify = require('gulp-minify'); //minifies JS
-const postcss = require('gulp-postcss'); //handles processing of CSS and enables use of cssnano and autoprefixer
-const autoprefixer = require('autoprefixer'); //handles autoprefixing for browser support
-const csso = require('gulp-csso'); //css minification
-const ts = require('gulp-typescript'); //typescript compiler
-const replace = require('gulp-replace'); //replace a string in a file being processed
-const base64 = require('gulp-base64-inline'); //inline any css background images with base64 
-const inlinesource = require('gulp-inline-source'); //inline js and css and images
-const htmlmin = require('gulp-htmlmin'); //minify html
+import dartSass from 'node-sass';
+import gulpSass from 'gulp-sass';
+const sass = gulpSass(dartSass);
+import concat from 'gulp-concat'
+import minify from 'gulp-minify'
+import postcss from 'gulp-postcss'
+import autoprefixer from 'autoprefixer'
+import csso from 'gulp-csso'
+import ts from 'gulp-typescript'
+import replace from 'gulp-replace'
+import base64 from 'gulp-base64-inline'
+import inlinesource from 'gulp-inline-source'
+import htmlmin from 'gulp-htmlmin'
 
 //for signalling dev vs. prod build
-const util = require('gulp-util'); //enables a dev and production build with minification
+import util from 'gulp-util' //enables a dev and production build with minification
 var production = !!util.env.production; //this keeps track of whether or not we are doing a normal or priduction build
 
 //clean up post build
-const purgecss = require('gulp-purgecss'); //remove unused css
-const del = require('del'); //plugin to delete temp files after build
+import purgecss from 'gulp-purgecss' //remove unused css
+import { deleteAsync } from 'del';
 
 // TS Config
 const tsProject = ts.createProject('tsconfig.json', { noImplicitAny: true, outFile: 'code.js' });
@@ -95,7 +97,7 @@ function htmlTask() {
 
 //Clean up temporary files
 function cleanUp() {
-    return del(['src/ui/tmp']);
+    return deleteAsync(['src/ui/tmp']);
 }
 
 //copy manifest file to dist
@@ -123,7 +125,7 @@ function watchTask(){
 
 // Export the default Gulp task so it can be run
 // Runs the scss, js, and typescript tasks simultaneously
-exports.default = series(
+export default series(
     parallel(jsTask, tsTask),
     scssTask,
     cssTask,
